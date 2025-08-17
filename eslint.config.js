@@ -42,11 +42,6 @@ export default tseslint.config([
       'react-hooks/rules-of-hooks': 'error',
       'react-hooks/exhaustive-deps': 'warn',
 
-      // JSX formatting
-      'react/jsx-tag-spacing': ['error', { beforeSelfClosing: 'always', closingSlash: 'never', afterOpening: 'never' }],
-      'react/jsx-indent': ['error', 4],
-      'react/jsx-indent-props': ['error', 4],
-
       // Spacing between imports/functions/blocks
       'padding-line-between-statements': [
         'error',

@@ -28,10 +28,10 @@ export const api = {
         }
 
         if (!res.ok) {
-            let msg = `HTTP ${res.status}`;
+            let msg = "";
             try {
                 const j = await res.json();
-                msg = j.message || j.error || msg;
+                msg = j.detail;
             } catch {
                 throw new Error(msg);
             }
@@ -43,25 +43,35 @@ export const api = {
     },
 
     // Auth
-    login: ({ username, password }: { username: string; password: string }) => api.request(
-"/login",
+    login: ({ username, password }: { username: string; password: string }) => api.request("/login",
         {
             method: "POST",
             headers: {
                 Authorization: "Basic " + btoa(`${username}:${password}`),
             },
-        }
-),
-
+        }),
     register: (body: object) => api.request("/register", { method: "POST", body: JSON.stringify(body) }),
     profile: () => api.request("/secured/profile", { method: "GET" }),
 
-    // Product
+    //Admin
+    listUsers: ({ sort, page, size, order, search = "" }: { sort?: string, page?: number, size?: number, order?: string, search?: string } = {}) =>
+        api.request(`/secured/admin?search=${encodeURIComponent(search)}&sort_by=${sort}&page=${page}&size=${size}&order=${order}`),
+    createUser: (body: object) =>
+        api.request("/secured/admin", { method: "POST", body: JSON.stringify(body) }),
+    deleteUser: (id: string) => api.request(`/secured/admin/${id}`, { method: "DELETE" }),
     listProducts: ({ sort, page, size, order, search = "" }: { sort?: string, page?: number, size?: number, order?: string, search?: string } = {}) =>
+        api.request(`/secured/admin/products?search=${encodeURIComponent(search)}&sort_by=${sort}&page=${page}&size=${size}&order=${order}`),
+    createProduct: (body: object) =>
+        api.request("/secured/admin/products", { method: "POST", body: JSON.stringify(body) }),
+    updateProduct: (id: string, body: object) =>
+        api.request(`/secured/admin/products/${id}`, { method: "PATCH", body: JSON.stringify(body) }),
+    deleteProduct: (id: string) => api.request(`/secured/admin/products/${id}`, { method: "DELETE" }),
+
+    // Product store
+    listProductsInStore: ({ sort, page, size, order, search = "" }: { sort?: string, page?: number, size?: number, order?: string, search?: string } = {}) =>
         api.request(
             `/secured/products?search=${encodeURIComponent(search)}&sort_by=${sort}&page=${page}&size=${size}&order=${order}`,
         ),
-    getProduct: (id: string) => api.request(`/secured/products/${id}`),
 
     // Cart
     getCart: () => api.request("/secured/cart"),

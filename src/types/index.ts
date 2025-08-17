@@ -11,25 +11,43 @@ export interface Cart {
     items: CartItem[];
 }
 
-export interface User {
+type Role = "ADMIN" | "BUYER" | "SELLER";
+
+export interface UserProfile {
     id: string;
     username: string;
+    role: Role;
 }
 
+export interface User {
+    id: string;
+    name: string;
+    username: string;
+    phone: string;
+    role: Role;
+}
 export interface Product {
-    id: string | number;
+    id: string;
     name: string;
     price: number;
     image?: string;
     description: string;
-    category?: { id?: string | number; name?: string; slug?: string } | string;
 }
+
+export interface ProductInventory {
+    id: string;
+    name: string;
+    price: number;
+    image?: string;
+    description: string;
+}
+
 export interface PageInfo {
     page: number;
-    offset: number;
     size: number;
     total_record: number;
 }
+
 export interface OrderItem {
     id: string;
     name: string;

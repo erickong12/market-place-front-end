@@ -1,10 +1,10 @@
 import { useState, useEffect, type ReactNode } from "react";
-import type { User } from "../types";
+import type { UserProfile } from "../types";
 import { api } from "../api/client";
 import { AuthContext } from "./AuthContext";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-    const [user, setUser] = useState<User | null>(null);
+    const [user, setUser] = useState<UserProfile | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<Error | null>(null);
 
@@ -14,8 +14,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             try {
                 const profile = await api.profile();
                 if (active) setUser(profile);
-            } catch (err) {
-                if (active) setError(err instanceof Error ? err : new Error("Unknown error"));
+            } catch (e: unknown) {
+                if (e instanceof Error) setError(e);
             } finally {
                 if (active) setLoading(false);
             }
