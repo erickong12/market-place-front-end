@@ -67,6 +67,9 @@ export function AdminUserPage() {
                     }}
                     className="pl-8"
                 />
+                <Button variant="secondary" onClick={() => setSearch(searchText)}>
+                    Search
+                </Button>
                 <select
                     value={sort}
                     onChange={(e) => setSort(e.target.value)}
