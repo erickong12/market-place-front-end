@@ -8,7 +8,7 @@ type LoadingProps = {
     count?: number;
 };
 
-export function Loading({ loading, children, count = 8 }: LoadingProps) {
+export function Loading({ loading, children, count = 12 }: LoadingProps) {
     if (!loading) return <>{children}</>;
 
     return (

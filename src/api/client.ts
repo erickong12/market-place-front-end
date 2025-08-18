@@ -18,8 +18,18 @@ export const api = {
 
         const token = api.token();
         if (token) headers["Authorization"] = `Bearer ${token}`;
-
-        const res = await fetch(`${API_BASE}${path}`, { ...opts, headers });
+        let res: Response;
+        try {
+            res = await fetch(`${API_BASE}${path}`, {
+                ...opts,
+                headers,
+            });
+        } catch (err: unknown) {
+            if (err instanceof Error) {
+                throw new Error(`Network error: ${err.message}`);
+            }
+            throw new Error("Unknown network error");
+        }
 
         if (res.status === 401) {
             api.clearToken();
@@ -28,15 +38,15 @@ export const api = {
         }
 
         if (!res.ok) {
-            let msg = "";
+            let msg: string;
             try {
                 const j = await res.json();
-                msg = j.detail;
+                msg = j.detail?.message || j.detail || res.statusText;
             } catch {
-                throw new Error(msg);
+                msg = res.statusText || "Unknown error";
             }
+            throw new Error(msg);
         }
-
         const ct = res.headers.get("content-type") || "";
 
         return ct.includes("application/json") ? res.json() : res.text();

@@ -6,7 +6,7 @@ export interface AuthContextType {
     setUser: (user: UserProfile | null) => void;
     loading: boolean;
     error: Error | null;
-    login: (body: unknown) => Promise<void>;
+    login: (body: { username: string; password: string }) => Promise<void>;
     logout: () => void;
 }
 

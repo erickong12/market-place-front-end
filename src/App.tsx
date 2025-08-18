@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { Toaster, toast } from "sonner";
 import type { Cart, ProductInventory } from "./types";
@@ -20,13 +20,10 @@ function AppContent() {
 	const { user, loading, logout: authLogout } = useAuth();
 	const [cartOpen, setCartOpen] = useState(false);
 	const [cart, setCart] = useState<Cart | null>({ items: [] });
-	const navigate = useNavigate();
-
 	const logout = useCallback(() => {
 		authLogout();
 		setCart({ items: [] });
-		navigate("/login");
-	}, [authLogout, navigate]);
+	}, [authLogout]);
 
 	useEffect(() => {
 		let active = true;
@@ -108,7 +105,7 @@ function AppContent() {
 						{/* Admin-only routes */}
 						{user?.role === "ADMIN" && (
 							<>
-								<Route path="/users" element={<AdminUserPage />} />
+								<Route path="/admin/users" element={<AdminUserPage />} />
 								<Route path="/admin/products" element={<AdminProductPage />} />
 							</>
 						)}
@@ -130,10 +127,11 @@ function AppContent() {
 
 export default function App() {
 	return (
-		<AuthProvider>
-			<BrowserRouter>
+		<BrowserRouter>
+			<AuthProvider>
 				<AppContent />
-			</BrowserRouter>
-		</AuthProvider>
+			</AuthProvider>
+		</BrowserRouter>
 	);
 }
+

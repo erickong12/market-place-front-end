@@ -15,7 +15,7 @@ export function HomePage() {
         } else {
             switch (user.role) {
                 case "ADMIN":
-                    navigate("/users");
+                    navigate("/admin/users");
                     break;
                 case "BUYER":
                     navigate("/products");
