@@ -2,50 +2,49 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { Toaster, toast } from "sonner";
-import type { Cart, ProductInventory } from "./types";
+import type { CartItem, ProductInventory } from "./types";
 import { api } from "./api/client";
-import { AppShell } from "./components/AppShell";
-import { ProductDetailPage } from "./components/pages/ProductDetailPage";
-import { ProductsPage } from "./components/pages/ProductsPage";
-import { LoginPage } from "./components/pages/LoginPage";
-import { HomePage } from "./components/pages/HomePage";
-import { OrdersPage } from "./components/pages/OrderPage";
-import { CartDrawer } from "./components/Drawer";
+import { AppShell } from "./pages/AppShell";
+import { ProductDetailPage } from "./pages/ProductDetailPage";
+import { ProductsPage } from "./pages/ProductsPage";
+import { LoginPage } from "./pages/LoginPage";
+import { HomePage } from "./pages/HomePage";
+import { OrdersPage } from "./pages/OrderPage";
 import { useAuth } from "./hooks/useAuth";
-import { AuthProvider } from "./provider/AuthProvider";
-import { AdminUserPage } from "./components/pages/AdminUserPage";
-import { AdminProductPage } from "./components/pages/AdminProductPage";
+import { AuthProvider } from "./context/AuthProvider";
+import { AdminUserPage } from "./pages/AdminUserPage";
+import { AdminProductPage } from "./pages/AdminProductPage";
+import { CartPage } from "./pages/CartPage";
+import { InventoryPage } from "./pages/InventoryPage";
 
 function AppContent() {
 	const { user, loading, logout: authLogout } = useAuth();
 	const [cartOpen, setCartOpen] = useState(false);
-	const [cart, setCart] = useState<Cart | null>({ items: [] });
+	const [cart, setCart] = useState<CartItem[] | null>(null);
 	const logout = useCallback(() => {
 		authLogout();
-		setCart({ items: [] });
+		setCart(null);
 	}, [authLogout]);
 
 	useEffect(() => {
 		let active = true;
 		(async () => {
+			if (!api.token())
+				authLogout();
+
 			if (!user) {
-				setCart({ items: [] });
+				setCart(null);
 
 				return;
 			}
-			if (user.role == "BUYER") {
-				try {
-					const c = await api.getCart();
-					if (active) setCart(c);
-				} catch (e: unknown) {
-					const msg = e instanceof Error ? e.message : "Failed to fetch cart";
-					toast.error(msg);
-				}
+			if (user.role == "BUYER" && cart == null) {
+				const c = await api.getCart();
+				if (active) setCart(c);
 			}
 		})();
 
 		return () => { active = false };
-	}, [logout, user]);
+	}, [authLogout, cart, cartOpen, user]);
 
 	const addToCart = async (p: ProductInventory) => {
 		if (!user) {
@@ -53,22 +52,17 @@ function AppContent() {
 
 			return;
 		}
-		try {
-			await api.addToCart({ productId: p.id, quantity: 1 });
-			const c = await api.getCart();
-			setCart(c);
-			toast.success("Added to cart");
-		} catch (e: unknown) {
-			const msg = e instanceof Error ? e.message : "Failed to add to cart";
-			toast.error(msg);
-		}
+		await api.addToCart({ seller_inventory_id: p.id, quantity: 1 });
+		const c = await api.getCart();
+		setCart(c);
+		toast.success("Added to cart");
 	};
 
 	const checkout = async () => {
 		try {
 			await api.checkout();
 			toast.success("Order placed");
-			setCart({ items: [] });
+			setCart(null);
 		} catch (e: unknown) {
 			const msg = e instanceof Error ? e.message : "Checkout failed";
 			toast.error(msg);
@@ -76,7 +70,7 @@ function AppContent() {
 	};
 
 	const cartCount = useMemo(
-		() => cart?.items?.reduce((a, b) => a + b.quantity, 0) || 0,
+		() => cart?.reduce((a, b) => a + b.quantity, 0) || 0,
 		[cart]
 	);
 
@@ -102,6 +96,7 @@ function AppContent() {
 								<Route path="/products/:id" element={<ProductDetailPage onAddToCart={addToCart} />} />
 							</>
 						)}
+						{user?.role === "SELLER" && <Route path="/inventory" element={<InventoryPage />} />}
 						{/* Admin-only routes */}
 						{user?.role === "ADMIN" && (
 							<>
@@ -113,7 +108,7 @@ function AppContent() {
 				)}
 			</AppShell>
 			{user?.role === "BUYER" && (
-				<CartDrawer
+				<CartPage
 					open={cartOpen}
 					onOpenChange={setCartOpen}
 					cart={cart}

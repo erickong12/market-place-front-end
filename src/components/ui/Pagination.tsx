@@ -1,7 +1,8 @@
-import { useState, type ReactNode } from "react";
+import { useState, type ReactNode, type FormEvent } from "react";
 import { Button } from "./Button";
 import { Select } from "./Select";
 import { Input } from "./Input";
+import { ArrowUp, ArrowDown } from "lucide-react";
 
 type PaginationProps<TSort extends string = string> = {
     page: number;
@@ -34,30 +35,42 @@ export default function Pagination<TSort extends string = string>({
     children,
     rightContent,
 }: PaginationProps<TSort>) {
-    const totalPages = Math.ceil(total / size);
+    const totalPages = Math.max(1, Math.ceil(total / size));
     const [searchText, setSearchText] = useState(search);
+
+    const handleSearch = (e: FormEvent) => {
+        e.preventDefault();
+        onChange({ search: searchText, page: 1 });
+    };
 
     return (
         <div className="flex flex-col gap-4">
-
+            {/* 🔍 Search + Sort */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-                <div className="flex gap-2 w-full">
+                <form onSubmit={handleSearch} className="flex gap-2 w-full">
                     <Input
                         placeholder="Search..."
                         value={searchText}
                         onChange={(e) => setSearchText(e.target.value)}
-                        onKeyDown={(e) => {
-                            if (e.key === "Enter") onChange({ search: searchText });
-                        }}
                     />
-                    <Button variant="secondary" onClick={() => onChange({ search: searchText })}>
+                    <Button type="submit" variant="secondary">
                         Search
                     </Button>
-                </div>
+                </form>
+
                 <div className="flex gap-2 w-full sm:w-auto">
-                    <Select value={sortBy} options={sortOptions} onChange={(e) => onChange({ sortBy: e.target.value as TSort })} />
-                    <Button variant="outline" onClick={() => onChange({ order: order === "asc" ? "desc" : "asc" })}>
-                        {order === "asc" ? "↑" : "↓"}
+                    <Select
+                        value={sortBy}
+                        options={sortOptions}
+                        onChange={(e) => onChange({ sortBy: e.target.value as TSort })}
+                    />
+                    <Button
+                        variant="outline"
+                        onClick={() =>
+                            onChange({ order: order === "asc" ? "desc" : "asc" })
+                        }
+                    >
+                        {order === "asc" ? <ArrowUp size={16} /> : <ArrowDown size={16} />}
                     </Button>
                 </div>
 

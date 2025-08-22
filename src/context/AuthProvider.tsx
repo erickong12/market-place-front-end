@@ -18,25 +18,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     useEffect(() => {
         let active = true;
-        api.setOnUnauthorized(() => {
-            if (active) logout();
-        });
-
-        (async () => {
-            try {
-                const profile = await api.profile();
-                if (active) setUser(profile);
-            } catch (e: unknown) {
-                if (e instanceof Error) setError(e);
-            } finally {
-                if (active) setLoading(false);
+        if (api.token()) {
+            (async () => {
+                try {
+                    if (active && !user) {
+                        const profile = await api.profile();
+                        setUser(profile);
+                    }
+                } catch (e: unknown) {
+                    if (e instanceof Error) setError(e);
+                } finally {
+                    if (active) setLoading(false);
+                }
+            })();
+        } else {
+            if (active) {
+                logout();
+                setLoading(false);
             }
-        })();
+        }
 
         return () => {
             active = false;
         };
-    }, [logout]);
+    }, [logout, user]);
 
     const login = async (body: { username: string; password: string }) => {
         setLoading(true);

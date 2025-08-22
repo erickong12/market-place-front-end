@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/Card";
-import { Input } from "../ui/Input";
-import { Button } from "../ui/Button";
-import { useAuth } from "../../hooks/useAuth";
-import { api } from "../../api/client";
+import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/Card";
+import { Input } from "../components/ui/Input";
+import { Button } from "../components/ui/Button";
+import { useAuth } from "../hooks/useAuth";
+import { api } from "../api/client";
 
 export function LoginPage() {
     const nav = useNavigate();
@@ -21,28 +21,22 @@ export function LoginPage() {
         const body = Object.fromEntries(form.entries());
 
         setLoading(true);
-        try {
-            if (mode === "login") {
-                await login(body);
-                toast.success("Welcome back");
-                nav("/");
-            } else {
-                if (!role) {
-                    toast.error("Please choose a role");
+        if (mode === "login") {
+            await login({ username: body.username as string, password: body.password as string });
+            toast.success("Welcome back");
+            nav("/");
+        } else {
+            if (!role) {
+                toast.error("Please choose a role");
 
-                    return;
-                }
-                await api.register({ ...body, role });
-                toast.success("Account created, please login");
-                setMode("login");
-                setRole(null);
+                return;
             }
-        } catch (e: unknown) {
-            const msg = e instanceof Error ? e.message : "Request failed";
-            toast.error(msg);
-        } finally {
-            setLoading(false);
+            await api.register({ ...body, role });
+            toast.success("Account created, please login");
+            setMode("login");
+            setRole(null);
         }
+        setTimeout(() => setLoading(false), 200);
     };
 
     return (

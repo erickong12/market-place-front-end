@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
-import type { Order } from "../../types";
-import { api } from "../../api/client";
-import { Skeleton } from "../ui/Skeleton";
-import { money } from "../../utils/format";
-import { Card, CardHeader, CardTitle, CardContent } from "../ui/Card";
-import { Badge } from "../ui/Badge";
+import type { Order } from "../types";
+import { api } from "../api/client";
+import { Skeleton } from "../components/ui/Skeleton";
+import { money } from "../components/lib/utils";
+import { Card, CardHeader, CardTitle, CardContent } from "../components/ui/Card";
+import { Badge } from "../components/ui/Badge";
 
 export function OrdersPage() {
     const [orders, setOrders] = useState<Order[]>([]);
@@ -15,19 +14,12 @@ export function OrdersPage() {
         let active = true;
         (async () => {
             setLoading(true);
-            try {
-                const res = await api.listOrders();
-                if (active) {
-                    // normalize response
-                    const items: Order[] = Array.isArray(res) ? res : res.items ?? [];
-                    setOrders(items);
-                }
-            } catch (e: unknown) {
-                const msg = e instanceof Error ? e.message : "Failed to fetch orders";
-                toast.error(msg);
-            } finally {
-                if (active) setLoading(false);
+            const res = await api.listOrders();
+            if (active) {
+                const items: Order[] = res.result;
+                setOrders(items);
             }
+            setTimeout(() => setLoading(false), 200);
         })();
 
         return () => { active = false };
@@ -49,26 +41,19 @@ export function OrdersPage() {
                             o.createdAt || o.created_at || Date.now()
                         ).toLocaleString();
 
-                        const total =
-                            o.total ??
-                            (o.items || []).reduce(
-                                (a, b) => a + (b.price ?? 0) * (b.quantity ?? 0),
-                                0
-                            );
+                        const total = o.total
 
                         return (
                             <Card key={o.id}>
                                 <CardHeader className="pb-2">
                                     <CardTitle className="text-base flex items-center justify-between">
                                         Order #{o.code || o.id}
-                                        <Badge>{o.status || "PAID"}</Badge>
+                                        <Badge>{o.status}</Badge>
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent className="text-sm text-slate-600 space-y-1">
                                     <div>{created}</div>
-                                    <div>
-                                        {(o.items || []).length} item(s) • Total {money(total)}
-                                    </div>
+                                    <div>Total {money(total)}</div>
                                 </CardContent>
                             </Card>
                         );
@@ -76,7 +61,8 @@ export function OrdersPage() {
                 </div>
             ) : (
                 <div className="text-sm text-slate-600">No orders yet.</div>
-            )}
-        </div>
+            )
+            }
+        </div >
     );
 }

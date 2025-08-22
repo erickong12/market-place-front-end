@@ -1,17 +1,17 @@
 export interface CartItem {
     id: string;
-    productId: string;
-    name: string;
+    product_id: string;
+    product_name: string;
     price: number;
     quantity: number;
-    image?: string | null;
-}
-
-export interface Cart {
-    items: CartItem[];
+    image: string;
+    seller_id: string;
+    seller_name: string;
+    inventory_id: string;
 }
 
 type Role = "ADMIN" | "BUYER" | "SELLER";
+type Status = "PENDING" | "CONFIRMED" | "READY_TO_PICKUP" | "DONE" | "CANCELLED" | "AUTO_CANCELLED";
 
 export interface UserProfile {
     id: string;
@@ -36,10 +36,19 @@ export interface Product {
 
 export interface ProductInventory {
     id: string;
-    name: string;
     price: number;
-    image?: string;
-    description: string;
+    quantity: number;
+    product_id: string;
+    product_name: string;
+    product_image: string;
+    product_description: string;
+    seller_id: string;
+    seller_name: string;
+}
+
+export interface ProductDropDown {
+    id: string;
+    name: string;
 }
 
 export interface PageInfo {
@@ -58,9 +67,20 @@ export interface OrderItem {
 export interface Order {
     id: string;
     code?: string;
-    status?: string;
+    status: Status;
     createdAt?: string;
     created_at?: string;
     total?: number;
-    items?: OrderItem[];
+}
+
+export interface InventoryItem {
+    id: string;
+    product_id: string;
+    product_name: string;
+    product_image: string;
+    product_description: string;
+    seller_id: string;
+    seller_name: string;
+    price?: number;
+    quantity?: number;
 }
