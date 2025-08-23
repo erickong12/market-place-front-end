@@ -58,11 +58,12 @@ export function InventoryPage() {
     };
 
     const handleSubmit = async (form: FormData) => {
+        const body = Object.fromEntries(form.entries());
         if (editing) {
-            await api.updateSellerInventory(editing.id, form);
+            await api.updateSellerInventory(editing.id, body);
             toast.success("Inventory updated");
         } else {
-            await api.addSellerInventory(form);
+            await api.addSellerInventory(body);
             toast.success("Inventory created");
         }
         setShowForm(false);
