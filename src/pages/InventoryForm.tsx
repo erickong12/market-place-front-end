@@ -46,6 +46,7 @@ export function InventoryForm({
                 onChange={(e) => setProductId(e.target.value)}
                 options={products.map((p) => ({ value: p.id, label: p.name }))}
             />
+            <label className="block text-sm font-medium text-gray-700">Price</label>
             <Input
                 type="number"
                 placeholder="Price"
@@ -53,6 +54,7 @@ export function InventoryForm({
                 onChange={(e) => setPrice(Number(e.target.value))}
                 required
             />
+            <label className="block text-sm font-medium text-gray-700">Quantity</label>
             <Input
                 type="number"
                 placeholder="Quantity"
