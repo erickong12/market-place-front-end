@@ -8,7 +8,7 @@ type PaginationProps<TSort extends string = string> = {
     page: number;
     size: number;
     total: number;
-    search: string;
+    search?: string; // now optional
     sortBy: TSort;
     order: "asc" | "desc";
     sortOptions: { label: string; value: TSort }[];
@@ -21,19 +21,21 @@ type PaginationProps<TSort extends string = string> = {
     }) => void;
     children: ReactNode;
     rightContent?: ReactNode;
+    showSearch?: boolean;
 };
 
 export default function Pagination<TSort extends string = string>({
     page,
     size,
     total,
-    search,
+    search = "",
     sortBy,
     order,
     sortOptions,
     onChange,
     children,
     rightContent,
+    showSearch = true,
 }: PaginationProps<TSort>) {
     const totalPages = Math.max(1, Math.ceil(total / size));
     const [searchText, setSearchText] = useState(search);
@@ -45,18 +47,19 @@ export default function Pagination<TSort extends string = string>({
 
     return (
         <div className="flex flex-col gap-4">
-            {/* 🔍 Search + Sort */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-                <form onSubmit={handleSearch} className="flex gap-2 w-full">
-                    <Input
-                        placeholder="Search..."
-                        value={searchText}
-                        onChange={(e) => setSearchText(e.target.value)}
-                    />
-                    <Button type="submit" variant="secondary">
-                        Search
-                    </Button>
-                </form>
+                {showSearch && (
+                    <form onSubmit={handleSearch} className="flex gap-2 w-full">
+                        <Input
+                            placeholder="Search..."
+                            value={searchText}
+                            onChange={(e) => setSearchText(e.target.value)}
+                        />
+                        <Button type="submit" variant="secondary">
+                            Search
+                        </Button>
+                    </form>
+                )}
 
                 <div className="flex gap-2 w-full sm:w-auto">
                     <Select

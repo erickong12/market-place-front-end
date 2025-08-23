@@ -112,8 +112,8 @@ export const api = {
     // Product store
     listProductsInStore: ({ sort, page, size, order, search = "" }: { sort?: string; page?: number; size?: number; order?: string; search?: string } = {}) =>
         api.request(`/secured/products${buildQuery({ search, sort_by: sort, page, size, order })}`),
-    landingProducts: ({ limit = 5, search = "" }: { limit?: number; search?: string } = {}) =>
-        api.request(`/secured/products/landing${buildQuery({ limit, search })}`),
+    landingProducts: ({ limit = 5 }: { limit?: number; } = {}) =>
+        api.request(`/secured/products/landing${buildQuery({ limit })}`),
 
     // Seller Inventory
     listSellerInventory: ({ sort, page, size, order, search = "" }: { sort?: string; page?: number; size?: number; order?: string; search?: string } = {}) =>
@@ -138,7 +138,6 @@ export const api = {
         api.request(`/secured/orders/${buildQuery({ sort_by: sort, page, size, order })}`),
     getOrderItems: (orderId: string) => api.request(`/secured/orders/items/${orderId}`),
     confirmOrder: (orderId: string) => api.request(`/secured/orders/${orderId}/confirm`, { method: "PATCH" }),
-    rejectOrder: (orderId: string) => api.request(`/secured/orders/${orderId}/reject`, { method: "PATCH" }),
     readyOrder: (orderId: string) => api.request(`/secured/orders/${orderId}/ready`, { method: "PATCH" }),
     completeOrder: (orderId: string) => api.request(`/secured/orders/${orderId}/done`, { method: "PATCH" }),
     cancelOrder: (orderId: string) => api.request(`/secured/orders/${orderId}/cancel`, { method: "PATCH" }),

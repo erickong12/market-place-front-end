@@ -7,12 +7,13 @@ import {
     Store,
 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { Dropdown, DropdownItem } from "../components/ui/Dropdown";
-import { Button } from "../components/ui/Button";
-import { Badge } from "../components/ui/Badge";
-import { Sheet, SheetContent, SheetTrigger } from "../components/ui/Sheet";
+import { Dropdown, DropdownItem } from "./components/ui/Dropdown";
+import { Button } from "./components/ui/Button";
+import { Badge } from "./components/ui/Badge";
+import { Dialog } from "./components/ui/Dialog";
 import type { ReactNode } from "react";
-import type { UserProfile } from "../types";
+import type { UserProfile } from "./types";
+import { useState } from "react";
 
 type UserRole = NonNullable<UserProfile["role"]>;
 interface MenuItem {
@@ -42,7 +43,7 @@ const MENU_CONFIG: Partial<Record<UserRole, MenuItem[]>> = {
     ],
 };
 
-function NavLinks({ links, mobile = false }: { links: MenuItem[]; mobile?: boolean }) {
+function NavLinks({ links, mobile = false, setMobileOpen = () => { } }: { links: MenuItem[]; mobile?: boolean, setMobileOpen?: (open: boolean) => void }) {
     return (
         <>
             {links.map((l) => (
@@ -51,9 +52,10 @@ function NavLinks({ links, mobile = false }: { links: MenuItem[]; mobile?: boole
                     to={l.to}
                     className={
                         mobile
-                            ? "text-lg font-medium hover:underline"
+                            ? "block text-lg font-medium hover:underline py-2"
                             : "hover:underline"
                     }
+                    onClick={mobile ? () => setMobileOpen(false) : undefined}
                 >
                     {l.label}
                 </Link>
@@ -104,6 +106,7 @@ export function AppShell({
 }: AppShellProps) {
     const role = user?.role;
     const links = role ? MENU_CONFIG[role] ?? [] : [];
+    const [mobileOpen, setMobileOpen] = useState(false);
 
     return (
         <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white text-slate-800">
@@ -115,6 +118,7 @@ export function AppShell({
                     </Link>
                     <div className="flex-1" />
 
+                    {/* Desktop nav */}
                     <nav className="hidden md:flex items-center gap-6">
                         <NavLinks links={links} />
                     </nav>
@@ -129,23 +133,33 @@ export function AppShell({
                             </Button>
                         )}
 
+                        {/* Mobile menu button */}
                         {links.length > 0 && (
-                            <Sheet>
-                                <SheetTrigger asChild>
-                                    <Button variant="ghost" className="md:hidden p-2">
-                                        <Menu className="h-5 w-5" />
-                                    </Button>
-                                </SheetTrigger>
-                                <SheetContent side="right" className="flex flex-col gap-4 p-6">
-                                    <NavLinks links={links} mobile />
-                                </SheetContent>
-                            </Sheet>
+                            <Button
+                                variant="ghost"
+                                className="md:hidden p-2"
+                                onClick={() => setMobileOpen(true)}
+                            >
+                                <Menu className="h-5 w-5" />
+                            </Button>
                         )}
                     </div>
                 </div>
             </header>
 
-            {/* Content */}
+            {/* Mobile Menu as Dialog */}
+            <Dialog drawer={true}
+                open={mobileOpen}
+                onClose={() => setMobileOpen(false)}
+                title="Menu"
+            >
+                <div className="flex flex-col gap-4">
+                    <div className="flex flex-col gap-2 items-start">
+                        <NavLinks setMobileOpen={setMobileOpen} links={links} mobile />
+                    </div>
+                </div>
+            </Dialog>
+
             <main className="mx-auto max-w-7xl px-4 py-6">{children}</main>
         </div>
     );

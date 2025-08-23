@@ -13,7 +13,7 @@ export function ProductDetailPage({ onAddToCart }: ProductDetailPageProps) {
 	const location = useLocation();
 	const p = (location.state as { product: ProductInventory } | null)?.product;
 
-	if (!p || p.id.toString() !== id) {
+	if (!p || p.id !== id) {
 		return <div>Product not found.</div>;
 	}
 

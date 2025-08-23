@@ -68,7 +68,7 @@ export function Dialog({ open, onClose, title, children, drawer = false }: Dialo
                         exit="exit"
                         transition={{ duration: 0.2 }}
                     >
-                        <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+                        <div className="bg-white rounded shadow-xl w-full max-w-md overflow-hidden">
                             {title && (
                                 <div className="flex justify-between items-center p-4 border-b">
                                     <h2 id="dialog-title" className="text-lg font-semibold">

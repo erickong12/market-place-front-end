@@ -1,21 +1,22 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { Toaster, toast } from "sonner";
 import type { CartItem, ProductInventory } from "./types";
 import { api } from "./api/client";
-import { AppShell } from "./pages/AppShell";
+import { AppShell } from "./AppShell";
 import { ProductDetailPage } from "./pages/ProductDetailPage";
-import { ProductsPage } from "./pages/ProductsPage";
 import { LoginPage } from "./pages/LoginPage";
 import { HomePage } from "./pages/HomePage";
-import { OrdersPage } from "./pages/OrderPage";
 import { useAuth } from "./hooks/useAuth";
 import { AuthProvider } from "./context/AuthProvider";
 import { AdminUserPage } from "./pages/AdminUserPage";
 import { AdminProductPage } from "./pages/AdminProductPage";
 import { CartPage } from "./pages/CartPage";
 import { InventoryPage } from "./pages/InventoryPage";
+import { OrderPage } from "./pages/OrderPage";
+import { OrderDetailPage } from "./pages/OrderDetailPage";
+import { ProductsPage } from "./pages/ProductsPage";
 
 function AppContent() {
 	const { user, loading, logout: authLogout } = useAuth();
@@ -89,7 +90,12 @@ function AppContent() {
 						<Route path="/login" element={<LoginPage />} />
 
 						{/* Authenticated routes */}
-						{(user?.role === "BUYER" || user?.role === "SELLER") && <Route path="/orders" element={<OrdersPage />} />}
+						{(user?.role === "BUYER" || user?.role === "SELLER") && (
+							<>
+								<Route path="/orders" element={<OrderPage role={user.role} />} />
+								<Route path="/orders/:id" element={<OrderDetailPage role={user.role} />} />
+							</>
+						)}
 						{user?.role === "BUYER" && (
 							<>
 								<Route path="/products" element={<ProductsPage onAddToCart={addToCart} />} />
@@ -104,6 +110,7 @@ function AppContent() {
 								<Route path="/admin/products" element={<AdminProductPage />} />
 							</>
 						)}
+						<Route path="*" element={<Navigate to="/" />} />
 					</Routes>
 				)}
 			</AppShell>

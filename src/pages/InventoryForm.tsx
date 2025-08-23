@@ -1,55 +1,73 @@
 import { useState } from "react";
 import { Input } from "../components/ui/Input";
-import type { InventoryItem, ProductDropDown } from "../types";
 import { Button } from "../components/ui/Button";
 import { Select } from "../components/ui/Select";
+import type { InventoryItem, ProductDropDown } from "../types";
 
 export function InventoryForm({
     initialData,
     products,
     onSubmit,
+    onCancel,
 }: {
     products: ProductDropDown[];
     initialData?: Partial<InventoryItem>;
-    onSubmit: (body: { product_id: string; price: number; quantity: number }) => Promise<void>;
+    onSubmit: (form: FormData) => Promise<void>;
+    onCancel: () => void;
 }) {
     const [productId, setProductId] = useState(initialData?.product_id || "");
-    const [price, setPrice] = useState(initialData?.price || 0);
-    const [quantity, setQuantity] = useState(initialData?.quantity || 0);
+    const [price, setPrice] = useState(initialData?.price ?? 0);
+    const [quantity, setQuantity] = useState(initialData?.quantity ?? 0);
+    const [loading, setLoading] = useState(false);
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!productId) {
+            return alert("Product is required");
+        }
+
+        const form = new FormData();
+        form.append("product_id", productId);
+        form.append("price", price.toString());
+        form.append("quantity", quantity.toString());
+
+        setLoading(true);
+        await onSubmit(form);
+        setTimeout(() => setLoading(false), 200);
+    };
 
     return (
-        <form
-            className="space-y-4"
-            onSubmit={async (e) => {
-                e.preventDefault();
-                await onSubmit({ product_id: productId, price, quantity });
-            }}
-        >
+        <form onSubmit={handleSubmit} className="space-y-4">
             <Select
                 label="Product"
-                disabled={initialData !== undefined}
-                placeholder="Product"
+                disabled={!!initialData}
+                placeholder="Select product"
                 value={productId}
-                onChange={(e) => setProductId(e.target.value)} options={products.map((p) => ({ value: p.id, label: p.name }))} />
-            <label className="text-sm font-medium">
-                Price
-            </label>
+                onChange={(e) => setProductId(e.target.value)}
+                options={products.map((p) => ({ value: p.id, label: p.name }))}
+            />
             <Input
                 type="number"
                 placeholder="Price"
                 value={price}
                 onChange={(e) => setPrice(Number(e.target.value))}
+                required
             />
-            <label className="text-sm font-medium">
-                Quantity
-            </label>
             <Input
                 type="number"
                 placeholder="Quantity"
                 value={quantity}
                 onChange={(e) => setQuantity(Number(e.target.value))}
+                required
             />
-            <Button type="submit">Save</Button>
+            <div className="flex gap-2 justify-end">
+                <Button type="button" variant="secondary" onClick={onCancel}>
+                    Cancel
+                </Button>
+                <Button type="submit" disabled={loading}>
+                    {loading ? "Saving..." : initialData?.id ? "Update" : "Create"}
+                </Button>
+            </div>
         </form>
     );
 }
