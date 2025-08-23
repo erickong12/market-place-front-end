@@ -118,7 +118,7 @@ export const api = {
     // Seller Inventory
     listSellerInventory: ({ sort, page, size, order, search = "" }: { sort?: string; page?: number; size?: number; order?: string; search?: string } = {}) =>
         api.request(`/secured/seller-inventory/${buildQuery({ search, sort_by: sort, page, size, order })}`),
-    productDropDown: () => api.request(`/secured/seller-inventory/products/`),
+    productDropDown: () => api.request(`/secured/seller-inventory/products`),
     addSellerInventory: (body: object) => api.request(`/secured/seller-inventory/`, { method: "POST", body: JSON.stringify(body) }),
     updateSellerInventory: (inventoryId: string, body: object) =>
         api.request(`/secured/seller-inventory/${inventoryId}`, { method: "PUT", body: JSON.stringify(body) }),
