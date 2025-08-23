@@ -80,7 +80,7 @@ export const api = {
 
     // Admin - Users
     listUsers: ({ sort, page, size, order, search = "" }: { sort?: string; page?: number; size?: number; order?: string; search?: string } = {}) =>
-        api.request(`/secured/admin${buildQuery({ search, sort_by: sort, page, size, order })}`),
+        api.request(`/secured/admin/${buildQuery({ search, sort_by: sort, page, size, order })}`),
     createUser: (body: object) => api.request("/secured/admin/", { method: "POST", body: JSON.stringify(body) }),
     deleteUser: (id: string) => api.request(`/secured/admin/${id}`, { method: "DELETE" }),
 
