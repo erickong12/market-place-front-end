@@ -7,6 +7,7 @@ import { api } from "../api/client";
 import { Link, useNavigate } from "react-router-dom";
 import Pagination from "../components/ui/Pagination";
 import { statusVariant, type Order, type Status } from "../types";
+import { money } from "../components/lib/utils";
 
 export function OrderPage({ role }: { role: "SELLER" | "BUYER" }) {
     const [tab, setTab] = useState<"orders" | "history">("orders");
@@ -90,7 +91,7 @@ export function OrderPage({ role }: { role: "SELLER" | "BUYER" }) {
                                         ) : (
                                             <p>Seller: {o.seller_name}</p>
                                         )}
-                                        <p>Total: ${o.total}</p>
+                                        <p>Total: {money(o.total)}</p>
                                         <p className="text-sm text-gray-500">
                                             {new Date(o.created_at).toLocaleString()}
                                         </p>
